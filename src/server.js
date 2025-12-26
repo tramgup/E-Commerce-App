@@ -2,7 +2,7 @@ import express from 'express'
 import path, { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import authRoutes from './routes/authRoutes.js'
-import todoRoutes from './routes/todoRoutes.js'
+import shoppingRoutes from './routes/shoppingRoutes.js'
 import authMiddleware from './middleware/authMiddleware.js'
 
 const app = express()
@@ -24,9 +24,9 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'))
 })
 
-// Routes
+// Routes, prepends /auth to all authroutes, and /todos to all todoRoutes
 app.use('/auth', authRoutes)
-app.use('/todos', authMiddleware, todoRoutes)
+app.use('/shopping', authMiddleware, shoppingRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server has started on port: ${PORT}`)
