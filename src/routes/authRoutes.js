@@ -1,8 +1,7 @@
 import express from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import prisma from '../prisma/Client.js'
-import db from '../db.js'
+import prisma from '../prismaClient.js'
 
 const router = express.Router()
 
@@ -17,18 +16,22 @@ function signAccessToken(user){
 
 // Register a new user endpoing /auth/register
 router.post('/register', async (req, res) => {
-    const { email, password } = req.body
+    console.log("headers content-type:", req.headers["content-type"]);
+    console.log("raw body:", req.body);
+    console.log("password:", req.body?.password);
+
+    const { email, password } = req.body;
     // save the username and encrypted password
 
     // encrypt the password
-    const hashedPassword = bcrypt.hashSync(password, 8)
+    const passwordHash = bcrypt.hashSync(password, 8);
 
     // save the new user and hashed password to the db
     try {
         const user = await prisma.user.create({
             data: {
                 email,
-                hashedPassword,
+                passwordHash,
                 cart: { create: {} },
             }
     });

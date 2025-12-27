@@ -1,8 +1,13 @@
+# set up instruction for single docker container
+
 # Use an official node.js runtime as a parent image
 FROM node:22-alpine
 
 # set the working directory in the container
 WORKDIR /app
+
+# install openssl 
+RUN apk add --no-cache openssl
 
 # copy the package.json and package-lock.json files to the container
 COPY package*.json .
