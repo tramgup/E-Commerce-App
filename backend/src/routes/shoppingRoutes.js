@@ -1,5 +1,11 @@
-import express from 'express'
-import prisma from '../prismaClient.js'
+import express from 'express';
+import prisma from '../prismaClient.js';
+import Stripe from "stripe";
+import dotenv from "dotenv";
+
+dotenv.config()
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+
 
 const router = express.Router()
 
@@ -189,7 +195,51 @@ router.delete('/cart', async (req, res) => {
     }
 })
 
-//post checkout endpoint
+//checkout link with stripe
+router.post("/checkout", async (req, res) => {
+  try {
+    const cart = await prisma.cart.findUnique({
+      where: { userId: req.userId },
+      include: {
+        items: {
+          include: { product: true },
+        },
+      },
+    });
+
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ error: "Cart is empty" });
+    }
+
+    const line_items = cart.items.map((item) => {
+      // Prisma Decimal -> number
+      const unitAmountCents = Math.round(Number(item.product.price) * 100);
+
+      return {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: item.product.name,
+          },
+          unit_amount: unitAmountCents,
+        },
+        quantity: item.quantity,
+      };
+    });
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items,
+      success_url: "https://your-site.com/success?session_id={CHECKOUT_SESSION_ID}",
+      cancel_url: "https://your-site.com/cart",
+    });
+
+    return res.json({ url: session.url });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Checkout failed" });
+  }
+});
 
 
 export default router
