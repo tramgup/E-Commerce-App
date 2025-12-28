@@ -6,6 +6,7 @@ import shoppingRoutes from './routes/shoppingRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
 import authMiddleware from './middleware/authMiddleware.js'
 import adminMiddleware from './middleware/adminMiddleware.js'
+import cors from 'cors'
 
 const app = express();
 const PORT = process.env.PORT || 5003;
@@ -17,6 +18,7 @@ const __dirname = dirname(__filename);
 
 // Middleware
 app.use(express.json());
+app.use(cors())
 app.use(express.urlencoded({ extended: true }));
 
 
