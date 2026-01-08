@@ -15,6 +15,7 @@ COPY package*.json .
 # Install the dependencies
 RUN npm install 
 
+
 # copy the rest of the application code
 COPY . .
 

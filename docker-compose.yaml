@@ -1,8 +1,10 @@
 #allows us to initialize multiple docker containers
 
 services:
-  app:
-    build: .
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: e-commerce-app
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/e-commerce-app
@@ -14,7 +16,7 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/app
+      - ./backend:/app
 
   db:
     image: postgres:13-alpine
@@ -27,6 +29,22 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: e-commerce-frontend
+    environment:
+      - REACT_APP_API_URL=http://localhost:5003
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules
+
 
 volumes:
   postgres-data:
